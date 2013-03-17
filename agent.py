@@ -49,10 +49,10 @@ try:
 	
 	config = ConfigParser.ConfigParser()
 	
-	if os.path.exists('/etc/sd-agent/conf.d/'):
-		configPath = '/etc/sd-agent/conf.d/'
-	elif os.path.exists('/etc/sd-agent/config.cfg'):
-		configPath = '/etc/sd-agent/config.cfg'		
+	if os.path.exists('/etc/conf.d/'):
+		configPath = '/etc/conf.d/'
+	elif os.path.exists('/etc/nexyagent/nexyagent.conf'):
+		configPath = '/etc/nexyagent/nexyagent.conf'		
 	else:
 		configPath = path + '/config.cfg'
 	
