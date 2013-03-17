@@ -51,8 +51,8 @@ try:
 	
 	if os.path.exists('/etc/conf.d/'):
 		configPath = '/etc/conf.d/'
-	elif os.path.exists('/etc/nexyagent/nexyagent.conf'):
-		configPath = '/etc/nexyagent/nexyagent.conf'		
+	elif os.path.exists('/etc/nexyagent/'):
+		configPath = '/etc/nexyagent/'		
 	else:
 		configPath = path + '/config.cfg'
 	
