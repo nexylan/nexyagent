@@ -49,9 +49,7 @@ try:
 	
 	config = ConfigParser.ConfigParser()
 	
-	if os.path.exists('/etc/conf.d/'):
-		configPath = '/etc/conf.d/'
-	elif os.path.exists('/etc/nexyagent/'):
+	if os.path.exists('/etc/nexyagent/'):
 		configPath = '/etc/nexyagent/'		
 	else:
 		configPath = path + '/config.cfg'
