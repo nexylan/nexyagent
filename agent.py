@@ -164,12 +164,12 @@ try:
 		agentConfig['rabbitMQPass'] = config.get('Main', 'rabbitmq_pass')
 
 except ConfigParser.NoSectionError, e:
-	print 'Config file not found or incorrectly formatted'
+	print 'Config file not found or incorrectly formatted 1'
 	print 'Agent will now quit'
 	sys.exit(1)
 	
 except ConfigParser.ParsingError, e:
-	print 'Config file not found or incorrectly formatted'
+	print 'Config file not found or incorrectly formatted 2'
 	print 'Agent will now quit'
 	sys.exit(1)
 	
