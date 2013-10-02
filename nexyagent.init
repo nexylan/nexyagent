@@ -1,73 +1,28 @@
-#!/bin/sh
-#
-###############################################################################
-# sd-agent
-#
-# Written by Boxed Ice <hello@boxedice.com>
-# A server monitoring daemon for www.serverdensity.com
-#
-# Licensed under Simplified BSD License (see LICENSE)
-#
-###############################################################################
-#
-# chkconfig: 345 85 15
-# description: Server Density Monitoring Agent
-
-### BEGIN INIT INFO
-# Provides: sd-agent
-# Short-Description: Start and start sd-agent
-# Description: sd-agent is the monitoring agent component for Server Density
-### END INIT INFO
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
 AGENTPATH="/usr/local/nexyagent/agent.py"
+PIDFILE="/var/run/nexyagent.pid"
 
 [ -f $AGENTPATH ] || echo "/usr/local/nexyagent/agent.py not found"
 
-# Source function library.
-if [ -f /etc/init.d/functions ]; then
-        . /etc/init.d/functions
-fi
+depend() {
+	need net
+}
 
-if [ -f /etc/SuSE-release ]; then
-        . /etc/rc.status
-        rc_reset
-fi
+start() {
+	ebegin "Starting daemon Nexyagent"
+	start-stop-daemon --start --exec /usr/bin/python2.7 \
+		-- ${AGENTPATH} start init --clean
+	eend $?
+}
 
-# Action to take
-case "$1" in
-  start)
-        python2.7 $AGENTPATH stop init
-        python2.7 $AGENTPATH start init --clean
-        if [ -f /etc/SuSE-release ]; then
-                rc_status -v
-        elif [ -f /etc/debian_version ] || [ -f /etc/lsb-release ] || [ -f /etc/gentoo-release ]; then
-                echo " Started"
-        else
-            	success
-                echo
-        fi
-        echo
-	;;
-  stop)
-       	python2.7 $AGENTPATH stop init
-       	
-        if [ -f /etc/SuSE-release ]; then
-                rc_status -v
-        elif [ -f /etc/debian_version ] || [ -f /etc/lsb-release ] || [ -f /etc/gentoo-release ]; then
-                echo " Stopped"
-        else
-                success
-                echo
-        fi
-        echo
-	;;
-  restart)
-        $0 stop
-        $0 start
-        ;;
-  *)
-    	echo "Usage: /etc/init.d/sd-agent start|stop|restart"
-        exit 1
-esac
+stop() {
+	ebegin "Stopping daemon Nexyagent"
+	start-stop-daemon --start --exec /usr/bin/python2.7 \
+		-- ${AGENTPATH} stop init
+	eend $?
 
-exit 0
+}

@@ -296,13 +296,13 @@ if __name__ == '__main__':
 		if sys.argv[2] == 'init':
 			# This path added for newer Linux packages which run under
 			# a separate sd-agent user account.
-			if os.path.exists('/var/run/sd-agent/'):
-				pidFile = '/var/run/sd-agent/sd-agent.pid'
+			if os.path.exists('/var/run/nexyagent/'):
+				pidFile = '/var/run/nexyagent/nexyagent.pid'
 			else:
-				pidFile = '/var/run/sd-agent.pid'
+				pidFile = '/var/run/nexyagent.pid'
 			
 	else:
-		pidFile = os.path.join(agentConfig['pidfileDirectory'], 'sd-agent.pid')
+		pidFile = os.path.join(agentConfig['pidfileDirectory'], 'nexyagent.pid')
 	
 	if os.access(agentConfig['pidfileDirectory'], os.W_OK) == False:
 		print 'Unable to write the PID file at ' + pidFile
