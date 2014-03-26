@@ -2507,7 +2507,7 @@ class checks:
 				self.mainLogger.info('doPostBack: attempting postback: %s', self.agentConfig['sdUrl'])
 
 				# Build the request handler
-				request = urllib2.Request(self.agentConfig['sdUrl'] + '/postback/', postBackData, headers)
+				request = urllib2.Request(self.agentConfig['sdUrl'] , postBackData, headers)
 
 				# Do the request, log any errors
 				response = urllib2.urlopen(request)
