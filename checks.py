@@ -2503,13 +2503,8 @@ class checks:
 
 		try:
 
-<<<<<<< HEAD
 			try:
 				self.mainLogger.info('doPostBack: attempting postback: %s', self.agentConfig['sdUrl'])
-=======
-			# Build the request handler
-			request = urllib2.Request(self.agentConfig['sdUrl'] , postBackData, headers)
->>>>>>> 17463f99317897645854e6831360696dd9dc54f8
 
 				# Build the request handler
 				request = urllib2.Request(self.agentConfig['sdUrl'] + '/postback/', postBackData, headers)

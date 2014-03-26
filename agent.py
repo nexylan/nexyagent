@@ -183,11 +183,11 @@ if agentConfig['sdUrl'] == 'http://example.serverdensity.com' or agentConfig['ag
     sys.exit(1)
 
 # Check to make sure sd_url is in correct
-#if (re.match('http(s)?(\:\/\/)[a-zA-Z0-9_\-]+\.(nexylan.com)', agentConfig['sdUrl']) == None) \
-#   and (re.match('http(s)?(\:\/\/)[a-zA-Z0-9_\-]+\.(serverdensity.io)', agentConfig['sdUrl']) == None):
-#    print 'Your sd_url is incorrect. It needs to be in the form https://example.serverdensity.com or https://example.serverdensity.io'
-#    print 'Agent will now quit'
-#    sys.exit(1)
+if (re.match('http(s)?(\:\/\/)[a-zA-Z0-9_\-]+\.(serverdensity.com)', agentConfig['sdUrl']) == None) \
+   and (re.match('http(s)?(\:\/\/)[a-zA-Z0-9_\-]+\.(serverdensity.io)', agentConfig['sdUrl']) == None):
+    print 'Your sd_url is incorrect. It needs to be in the form https://example.serverdensity.com or https://example.serverdensity.io'
+    print 'Agent will now quit'
+    sys.exit(1)
 
 # Check apache_status_url is not empty (case 27073)
 if 'apacheStatusUrl' in agentConfig and agentConfig['apacheStatusUrl'] == None:
@@ -223,7 +223,6 @@ for section in config.sections():
         rawConfig[section][option] = config.get(section, option)
 
 # Override the generic daemon class to run our checks
-<<<<<<< HEAD
 class agent(Daemon):
 
     def run(self):
@@ -365,9 +364,9 @@ if __name__ == '__main__':
         elif 'update' == sys.argv[1]:
             mainLogger.info('Action: update')
 
-            if os.path.abspath(__file__) == '/usr/bin/sgent/nexyagent.py':
+            if os.path.abspath(__file__) == '/usr/bin/nexyagent/agent.py':
                 print 'Please use the Linux package manager that was used to install the agent to update it.'
-                print 'e.g. yum install nexuagent or apt-get install nexyagent'
+                print 'e.g. yum install nexyagent or apt-get install nexyagent'
                 sys.exit(1)
 
             import httplib
@@ -494,7 +493,7 @@ if __name__ == '__main__':
                         shutil.move(agentFile['tempFile'], os.path.join(installation_path, agentFile['name']))
 
                     except OSError:
-                        print 'An OS level error occurred. You will need to manually re-install the agent by downloading the latest version from http://www.serverdensity.com/downloads/sd-agent.tar.gz. You can copy your config.cfg to the new install'
+                        print 'An OS level error occurred. You will need to manually re-install the agent by downloading the latest version from http://www.serverdensity.com/downloads/nexyagent.tar.gz. You can copy your config.cfg to the new install'
                         sys.exit(1)
 
                 mainLogger.debug('Update: done')
@@ -513,291 +512,3 @@ if __name__ == '__main__':
     else:
         print 'usage: %s start|stop|restart|status|update' % sys.argv[0]
         sys.exit(1)
-=======
-class agent(Daemon):	
-	
-	def run(self):	
-		mainLogger.debug('Collecting basic system stats')
-		
-		# Get some basic system stats to post back for development/testing
-		import platform
-		systemStats = {'machine': platform.machine(), 'platform': sys.platform, 'processor': platform.processor(), 'pythonV': platform.python_version(), 'cpuCores': self.cpuCores()}
-		
-		if sys.platform == 'linux2':
-			systemStats['nixV'] = platform.dist()
-			
-		elif sys.platform == 'darwin':
-			systemStats['macV'] = platform.mac_ver()
-			
-		elif sys.platform.find('freebsd') != -1:
-			version = platform.uname()[2]
-			systemStats['fbsdV'] = ('freebsd', version, '') # no codename for FreeBSD
-		
-		mainLogger.info('System: ' + str(systemStats))
-						
-		mainLogger.debug('Creating checks instance')
-		
-		# Checks instance
-		c = checks(agentConfig, rawConfig, mainLogger)
-		
-		# Schedule the checks
-		mainLogger.info('checkFreq: %s', agentConfig['checkFreq'])
-		s = sched.scheduler(time.time, time.sleep)
-		c.doChecks(s, True, systemStats) # start immediately (case 28315)
-		s.run()
-		
-	def cpuCores(self):
-		if sys.platform == 'linux2':
-			grep = subprocess.Popen(['grep', 'model name', '/proc/cpuinfo'], stdout=subprocess.PIPE, close_fds=True)
-			wc = subprocess.Popen(['wc', '-l'], stdin=grep.stdout, stdout=subprocess.PIPE, close_fds=True)
-			output = wc.communicate()[0]
-			return int(output)
-			
-		if sys.platform == 'darwin':
-			output = subprocess.Popen(['sysctl', 'hw.ncpu'], stdout=subprocess.PIPE, close_fds=True).communicate()[0].split(': ')[1]
-			return int(output)
-
-# Control of daemon		
-if __name__ == '__main__':	
-	
-	# Logging
-	logFile = os.path.join(agentConfig['tmpDirectory'], 'sd-agent.log')
-	
-	if os.access(agentConfig['tmpDirectory'], os.W_OK) == False:
-		print 'Unable to write the log file at ' + logFile
-		print 'Agent will now quit'
-		sys.exit(1)
-	
-	handler = logging.handlers.RotatingFileHandler(logFile, maxBytes=10485760, backupCount=5) # 10MB files
-	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-	
-	handler.setFormatter(formatter)
-	
-	mainLogger = logging.getLogger('main')
-	mainLogger.setLevel(agentConfig['logging'])	
-	mainLogger.addHandler(handler)	
-	
-	mainLogger.info('--')
-	mainLogger.info('sd-agent %s started', agentConfig['version'])
-	mainLogger.info('--')
-	
-	mainLogger.info('sd_url: %s', agentConfig['sdUrl'])
-	mainLogger.info('agent_key: %s', agentConfig['agentKey'])
-	
-	argLen = len(sys.argv)
-	
-	if argLen == 3 or argLen == 4: # needs to accept case when --clean is passed
-		if sys.argv[2] == 'init':
-			# This path added for newer Linux packages which run under
-			# a separate sd-agent user account.
-			if os.path.exists('/var/run/nexyagent/'):
-				pidFile = '/var/run/nexyagent/nexyagent.pid'
-			else:
-				pidFile = '/var/run/nexyagent.pid'
-			
-	else:
-		pidFile = os.path.join(agentConfig['pidfileDirectory'], 'nexyagent.pid')
-	
-	if os.access(agentConfig['pidfileDirectory'], os.W_OK) == False:
-		print 'Unable to write the PID file at ' + pidFile
-		print 'Agent will now quit'
-		sys.exit(1)
-	
-	mainLogger.info('PID: %s', pidFile)
-	
-	if argLen == 4 and sys.argv[3] == '--clean':
-		mainLogger.info('--clean')
-		try:
-			os.remove(pidFile)
-		except OSError:
-			# Did not find pid file
-			pass
-	
-	# Daemon instance from agent class
-	daemon = agent(pidFile)
-	
-	# Control options
-	if argLen == 2 or argLen == 3 or argLen == 4:
-		if 'start' == sys.argv[1]:
-			mainLogger.info('Action: start')
-			daemon.start()
-			
-		elif 'stop' == sys.argv[1]:
-			mainLogger.info('Action: stop')
-			daemon.stop()
-			
-		elif 'restart' == sys.argv[1]:
-			mainLogger.info('Action: restart')
-			daemon.restart()
-			
-		elif 'foreground' == sys.argv[1]:
-			mainLogger.info('Action: foreground')
-			daemon.run()
-			
-		elif 'status' == sys.argv[1]:
-			mainLogger.info('Action: status')
-			
-			try:
-				pf = file(pidFile,'r')
-				pid = int(pf.read().strip())
-				pf.close()
-			except IOError:
-				pid = None
-			except SystemExit:
-				pid = None
-				
-			if pid:
-				print 'sd-agent is running as pid %s.' % pid
-			else:
-				print 'sd-agent is not running.'
-
-		elif 'update' == sys.argv[1]:
-			mainLogger.info('Action: update')
-			
-			if os.path.abspath(__file__) == '/usr/bin/sd-agent/agent.py':
-				print 'Please use the Linux package manager that was used to install the agent to update it.'
-				print 'e.g. yum install sd-agent or apt-get install sd-agent'
-				sys.exit(1)
-			
-			import httplib
-			import platform
-			import urllib2
-			
-			print 'Checking if there is a new version';
-			
-			# Get the latest version info
-			try: 
-				mainLogger.debug('Update: checking for update')
-				
-				request = urllib2.urlopen('http://www.serverdensity.com/agentupdate/')
-				response = request.read()
-				
-			except urllib2.HTTPError, e:
-				print 'Unable to get latest version info - HTTPError = ' + str(e)
-				sys.exit(1)
-				
-			except urllib2.URLError, e:
-				print 'Unable to get latest version info - URLError = ' + str(e)
-				sys.exit(1)
-				
-			except httplib.HTTPException, e:
-				print 'Unable to get latest version info - HTTPException'
-				sys.exit(1)
-				
-			except Exception, e:
-				import traceback
-				print 'Unable to get latest version info - Exception = ' + traceback.format_exc()
-				sys.exit(1)
-			
-			mainLogger.debug('Update: importing json/minjson')
-			
-			# We need to return the data using JSON. As of Python 2.6+, there is a core JSON
-			# module. We have a 2.4/2.5 compatible lib included with the agent but if we're
-			# on 2.6 or above, we should use the core module which will be faster
-			pythonVersion = platform.python_version_tuple()
-			
-			# Decode the JSON
-			if int(pythonVersion[1]) >= 6: # Don't bother checking major version since we only support v2 anyway
-				import json
-				
-				mainLogger.debug('Update: decoding JSON (json)')
-				
-				try:
-					updateInfo = json.loads(response)
-				except Exception, e:
-					print 'Unable to get latest version info. Try again later.'
-					sys.exit(1)
-				
-			else:
-				import minjson
-				
-				mainLogger.debug('Update: decoding JSON (minjson)')
-				
-				try:
-					updateInfo = minjson.safeRead(response)
-				except Exception, e:
-					print 'Unable to get latest version info. Try again later.'
-					sys.exit(1)
-			
-			# Do the version check	
-			if updateInfo['version'] != agentConfig['version']:			
-				import md5 # I know this is depreciated, but we still support Python 2.4 and hashlib is only in 2.5. Case 26918
-				import urllib
-				
-				print 'A new version is available.'
-				
-				def downloadFile(agentFile, recursed = False):
-					mainLogger.debug('Update: downloading ' + agentFile['name'])					
-					print 'Downloading ' + agentFile['name']
-					
-					downloadedFile = urllib.urlretrieve('http://www.serverdensity.com/downloads/sd-agent/' + agentFile['name'])
-					
-					# Do md5 check to make sure the file downloaded properly
-					checksum = md5.new()
-					f = file(downloadedFile[0], 'rb')
-					
-					# Although the files are small, we can't guarantee the available memory nor that there
-					# won't be large files in the future, so read the file in small parts (1kb at time)
-					while True:
-						part = f.read(1024)
-						
-						if not part: 
-							break # end of file
-					
-						checksum.update(part)
-						
-					f.close()
-					
-					# Do we have a match?
-					if checksum.hexdigest() == agentFile['md5']:
-						return downloadedFile[0]
-						
-					else:
-						# Try once more
-						if recursed == False:
-							downloadFile(agentFile, True)
-						
-						else:
-							print agentFile['name'] + ' did not match its checksum - it is corrupted. This may be caused by network issues so please try again in a moment.'
-							sys.exit(1)
-				
-				# Loop through the new files and call the download function
-				for agentFile in updateInfo['files']:
-					agentFile['tempFile'] = downloadFile(agentFile)			
-				
-				# If we got to here then everything worked out fine. However, all the files are still in temporary locations so we need to move them
-				# This is to stop an update breaking a working agent if the update fails halfway through
-				import os
-				import shutil # Prevents [Errno 18] Invalid cross-device link (case 26878) - http://mail.python.org/pipermail/python-list/2005-February/308026.html
-				
-				for agentFile in updateInfo['files']:
-					mainLogger.debug('Update: updating ' + agentFile['name'])
-					print 'Updating ' + agentFile['name']
-					
-					try:
-						if os.path.exists(agentFile['name']):
-							os.remove(agentFile['name'])
-							
-						shutil.move(agentFile['tempFile'], agentFile['name'])
-					
-					except OSError:
-						print 'An OS level error occurred. You will need to manually re-install the agent by downloading the latest version from http://www.serverdensity.com/downloads/sd-agent.tar.gz. You can copy your config.cfg to the new install'
-						sys.exit(1)
-				
-				mainLogger.debug('Update: done')
-				
-				print 'Update completed. Please restart the agent (python agent.py restart).'
-				
-			else:
-				print 'The agent is already up to date'
-		
-		else:
-			print 'Unknown command'
-			sys.exit(1)
-			
-		sys.exit(0)
-		
-	else:
-		print 'usage: %s start|stop|restart|status|update' % sys.argv[0]
-		sys.exit(1)
->>>>>>> 17463f99317897645854e6831360696dd9dc54f8
