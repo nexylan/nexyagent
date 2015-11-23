@@ -67,8 +67,8 @@ try:
 
     if os.path.exists('/etc/sd-agent/conf.d/'):
         configPath = '/etc/sd-agent/conf.d/'
-    elif os.path.exists('/etc/sd-agent/config.cfg'):
-        configPath = '/etc/sd-agent/config.cfg'
+    elif os.path.exists('/etc/nexyagent/config.cfg'):
+        configPath = '/etc/nexyagent/config.cfg'
     else:
         configPath = path + '/config.cfg'
 
