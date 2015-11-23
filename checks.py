@@ -39,7 +39,7 @@ python24 = platform.python_version().startswith('2.4')
 
 # Build the request headers
 headers = {
-    'User-Agent': 'Server Density Agent',
+    'User-Agent': 'Nexyagent',
     'Content-Type': 'application/json',
     'Accept': 'text/html, */*',
 }
