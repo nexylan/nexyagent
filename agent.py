@@ -92,8 +92,8 @@ try:
     agentConfig['agentKey'] = config.get('Main', 'agent_key')
 
     # Tmp path
-    if os.path.exists('/var/log/sd-agent/'):
-        agentConfig['tmpDirectory'] = '/var/log/sd-agent/'
+    if os.path.exists('/var/log/nexyagent/'):
+        agentConfig['tmpDirectory'] = '/var/log/nexyagent/'
     else:
         # default which may be overriden in the config later
         agentConfig['tmpDirectory'] = '/tmp/'
@@ -355,7 +355,7 @@ if __name__ == '__main__':
     os.putenv('LC_ALL', 'C')
 
     # Logging
-    logFile = os.path.join(agentConfig['tmpDirectory'], 'sd-agent.log')
+    logFile = os.path.join(agentConfig['tmpDirectory'], 'nexyagent.log')
 
     if not os.access(agentConfig['tmpDirectory'], os.W_OK):
         print 'Unable to write the log file at ' + logFile
@@ -372,7 +372,7 @@ if __name__ == '__main__':
     mainLogger.addHandler(handler)
 
     mainLogger.info('--')
-    mainLogger.info('sd-agent %s started', agentConfig['version'])
+    mainLogger.info('nexyagent %s started', agentConfig['version'])
     mainLogger.info('--')
 
     mainLogger.info('Reading config from: %s', configPath)
@@ -386,13 +386,13 @@ if __name__ == '__main__':
         if sys.argv[2] == 'init':
             # This path added for newer Linux packages which run under
             # a separate sd-agent user account.
-            if os.path.exists('/var/run/sd-agent/'):
-                pidFile = '/var/run/sd-agent/sd-agent.pid'
+            if os.path.exists('/var/run/nexyagent/'):
+                pidFile = '/var/run/nexyagent/nexyagent.pid'
             else:
-                pidFile = '/var/run/sd-agent.pid'
+                pidFile = '/var/run/nexyagent.pid'
 
     else:
-        pidFile = os.path.join(agentConfig['pidfileDirectory'], 'sd-agent.pid')
+        pidFile = os.path.join(agentConfig['pidfileDirectory'], 'nexyagent.pid')
 
     if not os.access(agentConfig['pidfileDirectory'], os.W_OK):
         print 'Unable to write the PID file at ' + pidFile
@@ -448,14 +448,14 @@ if __name__ == '__main__':
                 pid = None
 
             if pid:
-                print 'sd-agent is running as pid %s.' % pid
+                print 'nexyagent is running as pid %s.' % pid
             else:
-                print 'sd-agent is not running.'
+                print 'nexyagent is not running.'
 
         elif 'update' == sys.argv[1]:
             mainLogger.info('Action: update')
 
-            if os.path.abspath(__file__) == '/usr/bin/sd-agent/agent.py':
+            if os.path.abspath(__file__) == '/usr/bin/nexyagent/agent.py':
                 print 'Please use the Linux package manager that was used to install the agent to update it.'
                 print 'e.g. yum install sd-agent or apt-get install sd-agent'
                 sys.exit(1)
