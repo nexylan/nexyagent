@@ -39,7 +39,7 @@ python24 = platform.python_version().startswith('2.4')
 
 # Build the request headers
 headers = {
-    'User-Agent': 'Nexyagent',
+    'User-Agent': 'Server Density Agent',
     'Content-Type': 'application/json',
     'Accept': 'text/html, */*',
 }
@@ -2756,34 +2756,34 @@ class checks:
         # Apache Status
         if apacheStatus:
             if 'reqPerSec' in apacheStatus:
-                checksData['apacheReqPerSec'] = apacheStatus['reqPerSec']
+                checksData['apache_req_per_sec'] = apacheStatus['reqPerSec']
 
             if 'busyWorkers' in apacheStatus:
-                checksData['apacheBusyWorkers'] = apacheStatus['busyWorkers']
+                checksData['apache_busy_workers'] = apacheStatus['busyWorkers']
 
             if 'idleWorkers' in apacheStatus:
-                checksData['apacheIdleWorkers'] = apacheStatus['idleWorkers']
+                checksData['apache_idle_workers'] = apacheStatus['idleWorkers']
 
             self.mainLogger.debug('doChecks: built optional payload apacheStatus')
 
         # MySQL Status
         if mysqlStatus:
 
-            checksData['mysqlConnections'] = mysqlStatus['connections']
-            checksData['mysqlCreatedTmpDiskTables'] = mysqlStatus['createdTmpDiskTables']
-            checksData['mysqlMaxUsedConnections'] = mysqlStatus['maxUsedConnections']
-            checksData['mysqlOpenFiles'] = mysqlStatus['openFiles']
-            checksData['mysqlSlowQueries'] = mysqlStatus['slowQueries']
-            checksData['mysqlTableLocksWaited'] = mysqlStatus['tableLocksWaited']
-            checksData['mysqlThreadsConnected'] = mysqlStatus['threadsConnected']
+            checksData['mysql_connections'] = mysqlStatus['connections']
+            checksData['mysql_created_tmp_disk_tables'] = mysqlStatus['createdTmpDiskTables']
+            checksData['mysql_max_used_connections'] = mysqlStatus['maxUsedConnections']
+            checksData['mysql_open_files'] = mysqlStatus['openFiles']
+            checksData['mysql_slow_queries'] = mysqlStatus['slowQueries']
+            checksData['mysql_table_locks_waited'] = mysqlStatus['tableLocksWaited']
+            checksData['mysql_threads_connected'] = mysqlStatus['threadsConnected']
 
             if mysqlStatus['secondsBehindMaster'] is not None:
-                checksData['mysqlSecondsBehindMaster'] = mysqlStatus['secondsBehindMaster']
+                checksData['mysql_seconds_behind_master'] = mysqlStatus['secondsBehindMaster']
 
         # Nginx Status
         if nginxStatus:
-            checksData['nginxConnections'] = nginxStatus['connections']
-            checksData['nginxReqPerSec'] = nginxStatus['reqPerSec']
+            checksData['nginx_connections'] = nginxStatus['connections']
+            checksData['nginx_req_per_sec'] = nginxStatus['reqPerSec']
 
         # RabbitMQ
         if rabbitmq:
@@ -2802,10 +2802,10 @@ class checks:
             checksData['plugins'] = plugins
 
         if ioStats:
-            checksData['ioStats'] = ioStats
+            checksData['io_stats'] = ioStats
 
         if cpuStats:
-            checksData['cpuStats'] = cpuStats
+            checksData['cpu_stats'] = cpuStats
 
         # Include system stats on first postback
         if firstRun:
